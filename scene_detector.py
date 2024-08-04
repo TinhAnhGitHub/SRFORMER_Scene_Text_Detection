@@ -326,7 +326,11 @@ class SceneTextDetector:
             CfgNode: Configuration object
         """
         cfg = get_cfg()
-        cfg.merge_from_dict(config)
+        
+        config_cn = CfgNode(config)
+
+
+        cfg.merge_from_other_cfg(config_cn)
         cfg.MODEL.RETINANET.SCORE_THRESH_TEST = confidence_threshold
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = confidence_threshold
         cfg.MODEL.FCOS.INFERENCE_TH_TEST = confidence_threshold
