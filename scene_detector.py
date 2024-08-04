@@ -380,6 +380,8 @@ class SceneTextDetector:
             input_path_list = glob.glob(os.path.expanduser(input_path))
         
         assert input_path_list, "No input images found"
+        if os.path.isdir(output_path):
+            os.makedirs(output_path, exist_ok=True)
 
         results = []
         for path in tqdm(input_path_list):
