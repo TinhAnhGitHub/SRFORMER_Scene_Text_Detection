@@ -299,40 +299,34 @@ class SceneTextDetector:
     This class provides methods for processing images and visualize the results of text detection in various scenes.
     """
 
-    def __init__(self, config_file: str, model_weights: str, confidence_threshold: float = 0.5):
+    def __init__(self, config:Dict[str, Any], confidence_threshold: float = 0.5):
         """Initilize the SceneTextDetector
 
         Args:
             config_file (str): Path to the configuration file
-            model_weights (str): Path to the model weights file
+           
             confidence_threshold (float, optional): Confidence threshold for detections. Defaults to 0.5.
         """
 
         self.logger = setup_logger()
-        self.cfg = self.setup_cfg(
-            config_file= config_file,
-            model_weights = model_weights,
-            confidence_threshold= confidence_threshold
-        )
+        self.cfg = self.setup_cfg(config, confidence_threshold)
         self.demo = VisualizationDemo(self.cfg)
 
 
     
 
-    def setup_cfg(self, config_file: str, model_weights: str, confidence_threshold: float) -> CfgNode:
+    def setup_cfg(self, config: Dict[str, Any], confidence_threshold: float) -> CfgNode:
         """Set up the configuration for the model
 
         Args:
-            config_file (str): Path to the configuration file
-            model_weights (str): Pat to the model weights file
+            config (Dict[str, Any]): Configuration dictionary
             confidence_threshold (float): Confidence threshold for detections
 
         Returns:
             CfgNode: Configuration object
         """
         cfg = get_cfg()
-        cfg.merge_from_file(config_file)
-        cfg.MODEL.WEIGHTS = model_weights
+        cfg.merge_from_dict(config)
         cfg.MODEL.RETINANET.SCORE_THRESH_TEST = confidence_threshold
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = confidence_threshold
         cfg.MODEL.FCOS.INFERENCE_TH_TEST = confidence_threshold
