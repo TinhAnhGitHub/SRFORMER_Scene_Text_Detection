@@ -380,7 +380,7 @@ class SceneTextDetector:
             input_path_list = glob.glob(os.path.expanduser(input_path))
         
         assert input_path_list, "No input images found"
-        if os.path.isdir(output_path):
+        if output_path:
             os.makedirs(output_path, exist_ok=True)
 
         results = []
@@ -419,12 +419,9 @@ class SceneTextDetector:
             )
 
             if output_path:
-                if os.path.isdir(output_path):
-                    out_filename = os.path.join(output_path, os.path.basename(path))
-                else:
-                    out_filename = output_path
-                
-                out_filename = os.path.splitext(out_filename)[0] + '.webp'
+                # Use the basename of the input path for the output filename
+                input_basename = os.path.splitext(os.path.basename(path))[0]
+                out_filename = os.path.join(output_path, f"{input_basename}.webp")
                 cv2.imwrite(out_filename, cv_image, [cv2.IMWRITE_WEBP_QUALITY, 80])
         
         return results
