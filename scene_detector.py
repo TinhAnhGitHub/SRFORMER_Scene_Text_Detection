@@ -11,7 +11,7 @@ import glob
 import time
 import cv2
 
-import tqdm.notebook as tqdm
+from tqdm.notebook import tqdm as tqdm
 import numpy as np
 from PIL import Image
 import torch
