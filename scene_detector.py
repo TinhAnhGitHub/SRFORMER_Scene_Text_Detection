@@ -395,7 +395,7 @@ class SceneTextDetector:
                 )
             )
 
-            pil_image = Image.fromarray(visualized_output.get_image())
+            cv_image = cv2.cvtColor(np.array(visualized_output.get_image()), cv2.COLOR_RGB2BGR)
             instances = predictions['instances'].to('cpu')
             if self.cfg.MODEL.TRANSFORMER.USE_POLYGON:
                 polygons = instances.polygons
@@ -421,7 +421,9 @@ class SceneTextDetector:
                     out_filename = os.path.join(output_path, os.path.basename(path))
                 else:
                     out_filename = output_path
-                pil_image.save(out_filename )
+                
+                out_filename = os.path.splitext(out_filename)[0] + '.webp'
+                cv2.imwrite(out_filename, cv_image, [cv2.IMWRITE_WEBP_QUALITY, 80])
         
         return results
      
