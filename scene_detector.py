@@ -410,7 +410,7 @@ class SceneTextDetector:
 
             results.append(
                 {
-                    'PIL_img': pil_image,
+                    'PIL_img': cv_image,
                     'polygons': polygon_points,
                     'scores': scores    
                 }
