@@ -220,7 +220,7 @@ class SceneTextDetector:
     This class provides methods for processing images and visualize the results of text detection in various scenes.
     """
 
-    def __init__(self, model_weights: str, confidence_threshold: float = 0.5):
+    def __init__(self, model_weights: str, confidence_threshold: float = 0.5, config_file = './configs/SRFormer/TotalText/R_50_poly.yaml'):
         """Initilize the SceneTextDetector
 
         Args:
@@ -233,13 +233,14 @@ class SceneTextDetector:
         self.cfg = self.setup_cfg(
             model_weights = model_weights,
             confidence_threshold= confidence_threshold,
+            config_file= config_file
         )
         self.demo = VisualizationDemo(self.cfg)
 
 
     
 
-    def setup_cfg(self, model_weights: str, confidence_threshold: float, config_file: str = '/configs/SRFormer/TotalText/R_50_poly.yaml') -> CfgNode:
+    def setup_cfg(self, model_weights: str, confidence_threshold: float, config_file: str = './configs/SRFormer/TotalText/R_50_poly.yaml') -> CfgNode:
         """Set up the configuration for the model
 
         Args:
