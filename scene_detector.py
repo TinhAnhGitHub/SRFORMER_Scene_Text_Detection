@@ -210,86 +210,7 @@ class VisualizationDemo(object):
 
         return predictions, vis_output
 
-    def _frame_from_video(self, video):
-        while video.isOpened():
-            success, frame = video.read()
-            if success:
-                yield frame
-            else:
-                break
-
-    def vis_bases(self, bases):
-        basis_colors = [[2, 200, 255], [107, 220, 255], [30, 200, 255], [60, 220, 255]]
-        bases = bases[0].squeeze()
-        bases = (bases / 8).tanh().cpu().numpy()
-        num_bases = len(bases)
-        fig, axes = plt.subplots(nrows=num_bases // 2, ncols=2)
-        for i, basis in enumerate(bases):
-            basis = (basis + 1) / 2
-            basis = basis / basis.max()
-            basis_viz = np.zeros((basis.shape[0], basis.shape[1], 3), dtype=np.uint8)
-            basis_viz[:, :, 0] = basis_colors[i][0]
-            basis_viz[:, :, 1] = basis_colors[i][1]
-            basis_viz[:, :, 2] = np.uint8(basis * 255)
-            basis_viz = cv2.cvtColor(basis_viz, cv2.COLOR_HSV2RGB)
-            axes[i // 2][i % 2].imshow(basis_viz)
-        plt.show()
-
-    # not supported
-    def run_on_video(self, video):
-        """
-        Visualizes predictions on frames of the input video.
-
-        Args:
-            video (cv2.VideoCapture): a :class:`VideoCapture` object, whose source can be
-                either a webcam or a video file.
-
-        Yields:
-            ndarray: BGR visualizations of each video frame.
-        """
-        video_visualizer = VideoVisualizer(self.metadata, self.instance_mode)
-
-        def process_predictions(frame, predictions):
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            if "panoptic_seg" in predictions:
-                panoptic_seg, segments_info = predictions["panoptic_seg"]
-                vis_frame = video_visualizer.draw_panoptic_seg_predictions(
-                    frame, panoptic_seg.to(self.cpu_device), segments_info
-                )
-            elif "instances" in predictions:
-                predictions = predictions["instances"].to(self.cpu_device)
-                vis_frame = video_visualizer.draw_instance_predictions(frame, predictions)
-            elif "sem_seg" in predictions:
-                vis_frame = video_visualizer.draw_sem_seg(
-                    frame, predictions["sem_seg"].argmax(dim=0).to(self.cpu_device)
-                )
-
-            # Converts Matplotlib RGB format to OpenCV BGR format
-            vis_frame = cv2.cvtColor(vis_frame.get_image(), cv2.COLOR_RGB2BGR)
-            return vis_frame
-
-        frame_gen = self._frame_from_video(video)
-        if self.parallel:
-            buffer_size = self.predictor.default_buffer_size
-
-            frame_data = deque()
-
-            for cnt, frame in enumerate(frame_gen):
-                frame_data.append(frame)
-                self.predictor.put(frame)
-
-                if cnt >= buffer_size:
-                    frame = frame_data.popleft()
-                    predictions = self.predictor.get()
-                    yield process_predictions(frame, predictions)
-
-            while len(frame_data):
-                frame = frame_data.popleft()
-                predictions = self.predictor.get()
-                yield process_predictions(frame, predictions)
-        else:
-            for frame in frame_gen:
-                yield process_predictions(frame, self.predictor(frame))
+    
         
 
 class SceneTextDetector:
@@ -310,16 +231,16 @@ class SceneTextDetector:
 
         self.logger = setup_logger()
         self.cfg = self.setup_cfg(
-            config_file= config_file,
             model_weights = model_weights,
-            confidence_threshold= confidence_threshold
+            confidence_threshold= confidence_threshold,
+            config_file= config_file
         )
         self.demo = VisualizationDemo(self.cfg)
 
 
     
 
-    def setup_cfg(self, config_file: str, model_weights: str, confidence_threshold: float) -> CfgNode:
+    def setup_cfg(self, model_weights: str, confidence_threshold: float, config_file: str = '/configs/SRFormer/TotalText/R_50_poly.yaml') -> CfgNode:
         """Set up the configuration for the model
 
         Args:
