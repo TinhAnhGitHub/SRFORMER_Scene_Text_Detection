@@ -11,7 +11,7 @@ import glob
 import time
 import cv2
 
-from tqdm.notebook import tqdm as tqdm
+from tqdm.notebook import tqdm as tqdm  
 import numpy as np
 
 import torch
