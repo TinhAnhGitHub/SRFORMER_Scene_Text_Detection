@@ -13,7 +13,7 @@ import cv2
 
 from tqdm.notebook import tqdm as tqdm
 import numpy as np
-from PIL import Image
+
 import torch
 import matplotlib.pyplot as plt
 import multiprocessing as mp
@@ -21,7 +21,6 @@ import bisect
 import atexit
 
 
-from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
 from detectron2.data import MetadataCatalog
 from detectron2.engine.defaults import DefaultPredictor
@@ -186,7 +185,7 @@ class VisualizationDemo(object):
         """
         vis_output = None
         predictions = self.predictor(image)
-        # Convert image from OpenCV BGR format to Matplotlib RGB format.
+       
         image = image[:, :, ::-1]
         if self.vis_text:
             visualizer = TextVisualizer(image, self.metadata, instance_mode=self.instance_mode, cfg=self.cfg)
@@ -306,7 +305,7 @@ class SceneTextDetector:
 
         results = []
         for path in tqdm(input_path_list):
-            img = read_image(path, format='RGB')
+            img = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
             start_time = time.time()
             predictions, visualized_output = self.demo.run_on_image(
                 image=img  
